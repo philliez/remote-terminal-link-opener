@@ -1,0 +1,69 @@
+{
+  "name": "remote-terminal-link-opener",
+  "displayName": "Remote Terminal Link Opener",
+  "description": "Click and open terminal file links directly in VS Code tabs without Windows 0x2 errors, supporting SSH, WSL, stack traces, and line jumps.",
+  "version": "1.0.0",
+  "publisher": "philliez",
+  "icon": "images/icon.png",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "terminal",
+    "links",
+    "ssh",
+    "remote",
+    "file-link",
+    "hyperlink",
+    "stack-trace",
+    "remote-ssh"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/philliez/remote-terminal-link-opener"
+  },
+  "bugs": {
+    "url": "https://github.com/philliez/remote-terminal-link-opener/issues"
+  },
+  "homepage": "https://github.com/philliez/remote-terminal-link-opener#readme",
+  "license": "MIT",
+  "extensionKind": [
+    "ui",
+    "workspace"
+  ],
+  "contributes": {
+    "configuration": {
+      "title": "Remote Terminal Links",
+      "properties": {
+        "remoteTerminalLinks.defaultRemoteHost": {
+          "type": "string",
+          "default": "",
+          "description": "Default SSH host (from ~/.ssh/config) to use when clicking remote Linux paths from a local terminal session."
+        },
+        "remoteTerminalLinks.autoDetectHostFromTerminalName": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically detect SSH host alias from the terminal's active title or command."
+        },
+        "remoteTerminalLinks.promptIfHostUnknown": {
+          "type": "boolean",
+          "default": true,
+          "description": "Prompt with an input box to choose the target SSH host if it cannot be determined automatically."
+        },
+        "remoteTerminalLinks.preferEditor": {
+          "type": "boolean",
+          "default": true,
+          "description": "Always open file links directly inside an active VS Code editor tab."
+        }
+      }
+    }
+  }
+}
