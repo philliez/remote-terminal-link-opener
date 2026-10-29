@@ -1,37 +1,73 @@
 # Remote Terminal Link Opener
 
-A lightweight VS Code extension that intercepts terminal file paths, stack traces, and `file:///` URIs to open them directly in editor tabs—without OS-level path failures (such as Windows `0x2` file not found errors) and with seamless remote SSH routing.
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/philliez.remote-terminal-link-opener?style=flat-square&color=blue)](https://marketplace.visualstudio.com/items?itemName=philliez.remote-terminal-link-opener)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![VS Code Engine](https://img.shields.io/badge/vscode-%3E%3D1.75.0-blueviolet?style=flat-square)](https://code.visualstudio.com/)
 
-## Features
+> **Never see `Error 0x2: The system cannot find the file specified` again.**  
+> Click terminal file links, stack traces, and `file:///` URIs to jump directly into VS Code editor tabs—across Local, Remote-SSH, and WSL.
 
-- **Direct Editor Navigation**: Automatically activates for terminal file links and opens them in an active editor tab instead of relying on default OS shell handlers.
-- **Line & Column Jumps**: Accurately parses line and column targets across formats:
-  - Markdown/Web links (`path/to/file#L42`, `#L12-L24`)
-  - Standard colons (`path/to/file:42`, `path/to/file:42:10`)
-  - Python stack traces (`File "path/to/file", line 42`)
-  - Compiler errors (`--> path/to/file:42:10`)
-- **Remote SSH & Multi-Host Routing**: When working across remote servers or jump hosts, links automatically resolve to the active SSH environment (`vscode-remote://ssh-remote+...`) or prompt for the target host defined in `~/.ssh/config`.
-- **Zero Heavy Dependencies**: Pure JavaScript implementation using native VS Code APIs.
+---
 
-## Supported Link Formats
+## 🚫 The Problem
 
-| Format | Example | Action |
+When running modern CLI agents (Antigravity, Claude Code, Aider), test runners (`pytest`, `jest`), or compilers over SSH or on Windows:
+1. Links often print as `file:///home/ubuntu/app.py#L42` or `/var/log/syslog`.
+2. Clicking them in VS Code's integrated terminal causes Windows to invoke the OS shell handler, failing with:
+   ```
+   An error occurred while opening the file:
+   The system cannot find the file specified (0x2)
+   ```
+   ...or it erroneously launches Microsoft Edge / your web browser!
+3. If you run an SSH session in your local terminal window, VS Code doesn't know the remote path belongs to your server, so clicking it fails completely.
+
+## ✨ The Solution
+
+**Remote Terminal Link Opener** installs a native `TerminalLinkProvider` inside VS Code that intercepts clicks before the OS shell sees them:
+- 🎯 **Opens in Editor Tabs**: Routes every valid file link straight into a VS Code editor tab.
+- 📍 **Exact Line & Column Jump**: Automatically parses `#L42`, `#L42-L60`, `:42:10`, `:42`, and Python tracebacks to position your cursor directly on the line.
+- 🌐 **Seamless Remote-SSH Routing**: Clicking a remote Linux path from your local terminal automatically routes through `vscode-remote://ssh-remote+<host>/...`.
+- ⚡ **Zero Configuration Needed**: Auto-detects SSH hosts from your active terminal title or command.
+
+---
+
+## 🔍 Supported Link Patterns
+
+| Pattern Format | Example | Behavior |
 | :--- | :--- | :--- |
-| **file:/// URI** | `file:///home/user/project/src/index.ts#L25` | Opens at line 25 |
-| **Unix Absolute Path** | `/home/user/app/server.py:104:12` | Opens at line 104, col 12 |
-| **Python Traceback** | `File "/var/log/worker.py", line 88` | Opens at line 88 |
-| **Rust / Compiler Arrow** | `--> src/main.rs:15:4` | Opens at line 15, col 4 |
-| **Windows Drive Path** | `C:\Users\Username\code\app.js:30` | Opens at line 30 |
+| **`file:///` URIs** | `file:///home/ubuntu/main.py#L85` | Opens `main.py`, jumps to line 85 |
+| **Unix Absolute Paths** | `/var/log/nginx/access.log` | Opens `/var/log/nginx/access.log` |
+| **Line & Column Suffixes** | `/home/ubuntu/server.ts:124:15` | Opens `server.ts` at line 124, col 15 |
+| **Python Tracebacks** | `File "controllers/auth.py", line 42` | Opens `auth.py`, jumps to line 42 |
+| **Compiler Error Arrows** | `--> src/main.rs:52:9` | Opens `src/main.rs` at line 52, col 9 |
+| **Windows Local Paths** | `C:\Users\Dev\project\test.py:10` | Opens locally on line 10 |
 
-## Configuration Settings
+---
+
+## ⚙️ Extension Settings
+
+This extension contributes the following settings (`settings.json`):
 
 | Setting | Default | Description |
 | :--- | :--- | :--- |
-| `remoteTerminalLinks.preferEditor` | `true` | Always open matched terminal links inside an active editor tab. |
-| `remoteTerminalLinks.autoDetectHostFromTerminalName` | `true` | Automatically detects the SSH host alias from terminal title or process name. |
-| `remoteTerminalLinks.defaultRemoteHost` | `""` | Fallback SSH host alias (from `~/.ssh/config`) when clicking remote paths from a local terminal. |
-| `remoteTerminalLinks.promptIfHostUnknown` | `true` | Prompt to pick an SSH host if it cannot be inferred automatically. |
+| `remoteTerminalLinks.defaultRemoteHost` | `""` | Default SSH host alias (from your `~/.ssh/config`) when clicking remote paths from a local terminal. |
+| `remoteTerminalLinks.autoDetectHostFromTerminalName` | `true` | Automatically detects the SSH host from the terminal title or command (e.g. `ssh myserver`). |
+| `remoteTerminalLinks.promptIfHostUnknown` | `true` | Prompts with a quick input box to pick an SSH host if it cannot be auto-detected. |
+| `remoteTerminalLinks.preferEditor` | `true` | Always opens file links in active editor tabs rather than external handlers. |
 
-## License
+---
 
-MIT
+## 🚀 Quick Setup
+
+1. Install from the Visual Studio Marketplace.
+2. In VS Code settings (`Ctrl+,`), ensure link handling is enabled:
+   ```json
+   "terminal.integrated.enableFileLinks": "on"
+   ```
+3. Open any terminal, run your tests or agent, and `Ctrl+Click` any link!
+
+---
+
+## 📄 License
+
+MIT © [philliez](https://github.com/philliez)

@@ -1,5 +1,4 @@
-node_modules/
-.vscode-test/
 *.vsix
+node_modules/
 .DS_Store
-.env
+.vscode/
